@@ -1,0 +1,63 @@
+
+.with-expression[
+	name-segment ~ [1...]<'a'...'z'>;
+	name ~ @NS;[0...]('-'@NS;);
+];
+.with(
+	Name.[
+		segments ~ [NS](@children.[?~NS]);
+		primary-id ~ NS(@segments[0]);
+		subsequencies ~ [NS](@segments[1...]);
+	]
+);
+
+.context(calendar){
+	.with[
+		Day;
+		Week ~ [Day];
+		StandardWeek ~ Week :: length ~ Integer(7);
+		LongWeek ~ Week :: length ~ Integer(8);
+		YearWeek ~ LongWeek;
+		LeapWeek ~ LongWeek;
+		Month ~ [Week] {
+			length ~ Integer(4);
+			.with(days ~ Integer);
+			.do{
+				.with-var(sum ~ Integer(0));
+				.for(i : [0..length]) :: +=(sum, [i].length);
+				.with(days ~ sum);
+			}
+		}
+		StandardMonth ~ Month :: [...] ~ StandardWeek;
+		HoldidayMonth ~ Month {
+			.with(leap-month ~ .from([true, false]);
+			[0] ~ StandardWeek;
+			[1] ~ YearWeek;
+			?=(leap-month){
+				(true) :: [2] ~ LeapWeek;
+				(false) :: [2] ~ StandardWeek;
+			};
+			[3] ~ StandardWeek;
+		};
+		Month ~ .from([StandardMonth, HolidayMonth]);
+		Year ~ [Month]{
+			length ~ Integer(13);
+			.with[
+				value ~ Integer;
+				leap-year ~ .from([true, false]);
+			];
+			[0...11] ~ StandardMonth;
+			[12] ~ HolidayMonth :: leap-month ~ leap-year;
+		};
+	];
+}
+
+// :: Split the class to break out complexity
+
+.context(calendar){
+	.with(Year){
+		.do{
+			// :: figure out if it's a leap-year
+		}
+	};
+}
