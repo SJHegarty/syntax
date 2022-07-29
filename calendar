@@ -1,3 +1,33 @@
+.context(block-code){
+	.with[
+		(Code :~);
+		(Wild :~ [0...]*)
+		(LineContent : Wild);
+		(BlockHeader : Wild);
+		(BlockCode :~) {
+			@BHeader;' {'
+				[0...]@Code;
+			'};'
+		};
+		(LineCode :~ @LContent;';');
+		(LineBlock : LCode);
+		(LineBlock :~ @BHeader;' :: '@LineCode;);
+		(PlainLine :~ .and(@Line; !@LBlock;));
+		(LineCode :~ .or(@PLine;, @LBlock;));
+		(Code :~ .or(@BCode;, @LCode;));
+		
+		(line : LineCode).cast(BlockCode){
+			.return(
+				@line.block-header;' {'
+					@line.line-code
+				'};'
+			);
+		}
+		
+		
+	];
+	
+}
 
 .with-expression[
 	name-segment ~ [1...]<'a'...'z'>;
